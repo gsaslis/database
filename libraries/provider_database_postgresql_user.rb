@@ -35,15 +35,21 @@ class Chef
         end
 
         def action_create
-          unless exists?
-            begin
+          begin
+          	unless exists?
               statement = "CREATE USER \"#{@new_resource.username}\""
               statement += " WITH PASSWORD '#{@new_resource.password}'" if @new_resource.password
               db('template1').query(statement)
               @new_resource.updated_by_last_action(true)
-            ensure
-              close
             end
+			if @new_resource.roles.any?
+              statement = "ALTER ROLE \"#{@new_resource.username}\""
+              statement += " #{@new_resource.roles.to_a.map! { |a, b| (b ? "" : "NO") + a.to_s.upcase }.join(" ")}"
+              db("postgres").query(statement)
+              @new_resource.updated_by_last_action(true)
+            end
+          ensure
+            close
           end
         end
 
@@ -90,6 +96,7 @@ class Chef
           end
           exists
         end
+
       end
     end
   end

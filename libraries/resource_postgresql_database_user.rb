@@ -29,6 +29,7 @@ class Chef
         @resource_name = :postgresql_database_user
         @provider = Chef::Provider::Database::PostgresqlUser
         @schema_name = nil
+        @roles = {}
         @allowed_actions.push(:create, :drop, :grant, :grant_schema)
       end
 
@@ -37,6 +38,14 @@ class Chef
           :schema_name,
           arg,
           :kind_of => String
+        )
+      end
+
+      def roles(arg = nil)
+        set_or_return(
+          :roles,
+          arg,
+          :kind_of => Hash
         )
       end
     end
